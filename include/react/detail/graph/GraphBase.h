@@ -38,7 +38,7 @@ enum class WeightHint
 template
 <
     typename D,
-    long long threshold
+    unsigned long long threshold
 >
 class UpdateTimingPolicy :
     private ConditionalTimer<threshold, D::uses_node_update_timer>
@@ -264,8 +264,11 @@ public:
     const_iterator begin() const    { return data_.begin(); }
     const_iterator end() const      { return data_.end(); }
 
+    size_type   size() const        { return data_.size(); }
+    bool        empty() const       { return data_.empty(); }
+
     size_type   Size() const        { return data_.size(); }
-    bool        IsEmpty() const     { return data_.empty(); }
+    bool        Empty() const       { return data_.empty(); }
 
     explicit EventRange(const std::vector<E>& data) :
         data_( data )

@@ -52,29 +52,15 @@ inline const LARGE_INTEGER& GetPerformanceFrequency()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template
 <
-    long long threshold,
+    std::chrono::microseconds::rep threshold,
     bool is_enabled
 >
-class ConditionalTimer
-{
-public:
-    class ScopedTimer
-    {
-    public:
-        // Note:
-        // Count is passed by ref so it can be set later if it's not known at time of creation
-        ScopedTimer(const ConditionalTimer&, const size_t& count);
-    };
-
-    void Reset();
-    void ForceThresholdExceeded(bool isExceeded);
-    bool IsThresholdExceeded() const;
-};
+class ConditionalTimer;
 
 // Disabled
 template
 <
-    long long threshold
+    std::chrono::microseconds::rep threshold
 >
 class ConditionalTimer<threshold,false>
 {
@@ -83,18 +69,18 @@ public:
     class ScopedTimer
     {
     public:
-        ScopedTimer(const ConditionalTimer&, const size_t& count) {}
+        ScopedTimer(const ConditionalTimer&, const size_t&) {}
     };
 
     void Reset()                                    {}
-    void ForceThresholdExceeded(bool isExceeded)    {}
+    void ForceThresholdExceeded(bool)               {}
     bool IsThresholdExceeded() const                { return false; }
 };
 
 // Enabled
 template
 <
-    long long threshold
+    std::chrono::microseconds::rep threshold
 >
 class ConditionalTimer<threshold,true>
 {
@@ -103,6 +89,7 @@ public:
     using TimestampT = LARGE_INTEGER;
 #else
     using ClockT = std::chrono::high_resolution_clock;
+    using RepT = ClockT::duration::rep;
     using TimestampT = std::chrono::time_point<ClockT>;
 #endif
 
@@ -158,7 +145,7 @@ public:
 
         ConditionalTimer&   parent_;
         TimestampT          startTime_;  
-        const size_t&       count_;
+        const std::chrono::microseconds::rep&         count_;
     };
 
     static TimestampT now()

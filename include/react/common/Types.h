@@ -11,7 +11,6 @@
 
 #include "react/detail/Defs.h"
 
-#include <chrono>
 #include <cstdint>
 
 /***************************************/ REACT_IMPL_BEGIN /**************************************/
@@ -23,8 +22,6 @@ ObjectId GetObjectId(const O& obj)
 {
 	return (ObjectId)&obj;
 }
-
-using UpdateDurationT = std::chrono::duration<uint, std::micro>;
 
 /****************************************/ REACT_IMPL_END /***************************************/
 

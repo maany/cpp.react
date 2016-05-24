@@ -81,14 +81,14 @@ void runBenchmarkRandom(std::ostream& out)
 
 void runBenchmarkFanout(std::ostream& out)
 {
-    //RUN_BENCHMARK(out, 5, Benchmark_Fanout, BenchmarkParams_Fanout(10, 10000, 0),
-    //    ToposortSTDomain, ToposortDomain, ELMDomain, PulsecountDomain, SourceSetDomain);
+    RUN_BENCHMARK(out, 5, Benchmark_Fanout, BenchmarkParams_Fanout(10, 10000, 0),
+        ToposortSTDomain, ToposortDomain, PulsecountDomain);
 
-    //RUN_BENCHMARK(out, 5, Benchmark_Fanout, BenchmarkParams_Fanout(100, 10000, 0),
-    //    ToposortSTDomain, ToposortDomain, ELMDomain, PulsecountDomain, SourceSetDomain);
+    RUN_BENCHMARK(out, 5, Benchmark_Fanout, BenchmarkParams_Fanout(100, 10000, 0),
+        ToposortSTDomain, ToposortDomain, PulsecountDomain);
 
-    //RUN_BENCHMARK(out, 5, Benchmark_Fanout, BenchmarkParams_Fanout(1000, 10000, 0),
-    //    ToposortSTDomain, ToposortDomain, ELMDomain, PulsecountDomain, SourceSetDomain);
+    RUN_BENCHMARK(out, 5, Benchmark_Fanout, BenchmarkParams_Fanout(1000, 10000, 0),
+        ToposortSTDomain, ToposortDomain, PulsecountDomain);
 
     RUN_BENCHMARK(out, 3, Benchmark_Fanout, BenchmarkParams_Fanout(10, 10, 10),
         ToposortSTDomain, ToposortDomain, PulsecountDomain);
@@ -100,41 +100,41 @@ void runBenchmarkFanout(std::ostream& out)
         ToposortSTDomain, ToposortDomain, PulsecountDomain);
 }
 
-void runBenchmarkSequence(std::ostream& out)
-{
-    //RUN_BENCHMARK(out, 3, Benchmark_Sequence, BenchmarkParams_Sequence(10, 10000, 0),
-    //    ToposortSTDomain, ToposortDomain, ELMDomain, PulsecountDomain, SourceSetDomain);
+//void runBenchmarkSequence(std::ostream& out)
+//{
+//    //RUN_BENCHMARK(out, 3, Benchmark_Sequence, BenchmarkParams_Sequence(10, 10000, 0),
+//    //    ToposortSTDomain, ToposortDomain, ELMDomain, PulsecountDomain, SourceSetDomain);
 
-    //RUN_BENCHMARK(out, 3, Benchmark_Sequence, BenchmarkParams_Sequence(100, 10000, 0),
-    //    ToposortSTDomain, ToposortDomain, ELMDomain, PulsecountDomain, SourceSetDomain);
+//    //RUN_BENCHMARK(out, 3, Benchmark_Sequence, BenchmarkParams_Sequence(100, 10000, 0),
+//    //    ToposortSTDomain, ToposortDomain, ELMDomain, PulsecountDomain, SourceSetDomain);
 
-    //RUN_BENCHMARK(out, 3, Benchmark_Sequence, BenchmarkParams_Sequence(1000, 10000, 0),
-    //    ToposortSTDomain, ToposortDomain, ELMDomain, PulsecountDomain, SourceSetDomain);
+//    //RUN_BENCHMARK(out, 3, Benchmark_Sequence, BenchmarkParams_Sequence(1000, 10000, 0),
+//    //    ToposortSTDomain, ToposortDomain, ELMDomain, PulsecountDomain, SourceSetDomain);
 
-    RUN_BENCHMARK(out, 3, Benchmark_Sequence, BenchmarkParams_Sequence(10, 10, 10),
-        ToposortSTDomain, ToposortDomain, PulsecountDomain);
+//    RUN_BENCHMARK(out, 3, Benchmark_Sequence, BenchmarkParams_Sequence(10, 10, 10),
+//        ToposortSTDomain, ToposortDomain, PulsecountDomain);
 
-    RUN_BENCHMARK(out, 3, Benchmark_Sequence, BenchmarkParams_Sequence(100, 10, 10),
-        ToposortSTDomain, ToposortDomain, PulsecountDomain);
+//    RUN_BENCHMARK(out, 3, Benchmark_Sequence, BenchmarkParams_Sequence(100, 10, 10),
+//        ToposortSTDomain, ToposortDomain, PulsecountDomain);
 
-    RUN_BENCHMARK(out, 3, Benchmark_Sequence, BenchmarkParams_Sequence(1000, 10, 10),
-        ToposortSTDomain, ToposortDomain, PulsecountDomain);
-}
+//    RUN_BENCHMARK(out, 3, Benchmark_Sequence, BenchmarkParams_Sequence(1000, 10, 10),
+//        ToposortSTDomain, ToposortDomain, PulsecountDomain);
+//}
 
-void runBenchmarkLifeSim(std::ostream& out)
-{
-    //RUN_BENCHMARK(std::cout, 1, Benchmark_LifeSim, BenchmarkParams_LifeSim(150, 1000),
-    //    ELMDomain);
+//void runBenchmarkLifeSim(std::ostream& out)
+//{
+//    //RUN_BENCHMARK(std::cout, 1, Benchmark_LifeSim, BenchmarkParams_LifeSim(150, 10, 1000),
+//      //  ToposortDomain);
 
-    //RUN_BENCHMARK(std::cout, 1, Benchmark_LifeSim, BenchmarkParams_LifeSim(250, 30, 10000),
-    //    SourceSetDomain, PulsecountDomain);
+//    //RUN_BENCHMARK(std::cout, 1, Benchmark_LifeSim, BenchmarkParams_LifeSim(250, 30, 10000),
+//    //    SourceSetDomain, PulsecountDomain);
 
-    RUN_BENCHMARK(out, 1, Benchmark_LifeSim, BenchmarkParams_LifeSim(100, 15, 10000),
-        ToposortSTDomain, ToposortDomain, PulsecountDomain);
+//    //RUN_BENCHMARK(out, 1, Benchmark_LifeSim, BenchmarkParams_LifeSim(100, 15, 10000),
+//        //ToposortSTDomain, ToposortDomain, PulsecountDomain);
 
-    //RUN_BENCHMARK(out, 3, Benchmark_LifeSim, BenchmarkParams_LifeSim(100, 50, 100),
-    //    PulsecountDomain, PulsecountDomain);
-}
+//    //RUN_BENCHMARK(out, 3, Benchmark_LifeSim, BenchmarkParams_LifeSim(100, 50, 100),
+//    //    PulsecountDomain, PulsecountDomain);
+//}
 
 void runBenchmarks()
 {
@@ -144,21 +144,21 @@ void runBenchmarks()
     logfile.open(path.c_str());
 
     // === GRID
-    //runBenchmarkGrid(logfile);
-
-    //runBenchmarkFlooding(logfile);
+    runBenchmarkGrid(logfile);
 
     // === RANDOM
-    //runBenchmarkRandom(logfile);
+    if (0)
+        runBenchmarkRandom(logfile);
 
     // === FANOUT
-    //runBenchmarkFanout(logfile);
+    if (0)
+        runBenchmarkFanout(logfile);
 
     // === SEQUENCE
     //runBenchmarkSequence(logfile);
 
     // === LIFESIM
-    runBenchmarkLifeSim(logfile);
+    //runBenchmarkLifeSim(logfile);
 
     logfile.close();
 }
@@ -233,9 +233,34 @@ void profileBenchmark()
 
 } // ~anonymous namespace 
 
-int main()
+#include <algorithm>
+
+int main(int argc, char * argv[])
 {
-    //runBenchmarks();
-    //debugBenchmarks();    
-    profileBenchmark();
+    auto begin = argv;
+    auto end = argv + argc;
+
+//    auto getCmdOption = [&](const std::string & option) -> char*
+//    {
+//        char ** itr = std::find(begin, end, option);
+//        if (itr != end && ++itr != end)
+//        {
+//            return *itr;
+//        }
+//        return 0;
+//    };
+
+    auto cmdOptionExists = [&](const std::string& option) -> bool
+    {
+        return std::find(begin, end, option) != end;
+    };
+
+    std::cout << "-d to debug, -p to profile. run by default" << std::endl;
+
+    if (cmdOptionExists("-d"))
+        debugBenchmarks();
+    else if (cmdOptionExists("-p"))
+        profileBenchmark();
+    else
+        runBenchmarks();
 }

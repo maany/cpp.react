@@ -1,23 +1,28 @@
-### Configuration
-if(DEFINED ENV{GTEST_DIR})
-	message("Using gtest found in $ENV{GTEST_DIR}.")
-else()
-	message("GTEST_DIR is not defined. You must tell CMake where to find the gtest source.")
-	return()
-endif()
-add_subdirectory($ENV{GTEST_DIR} ${CMAKE_CURRENT_BINARY_DIR}/gtest)
+find_package(GTest REQUIRED)
+find_package(Threads REQUIRED)
 
-### CppReactTest
-add_executable(CppReactTest
-	src/EventStreamTest.cpp
-	src/EventStreamTestQ.cpp
-	src/MoveTest.cpp
-	src/ObserverTest.cpp
-	src/ObserverTestQ.cpp
-	src/OperationsTest.cpp
-	src/OperationsTestQ.cpp
-	src/SignalTest.cpp
-	src/SignalTestQ.cpp
-	src/TransactionTest.cpp)
+function(cppreact_test)
+    set(options SKIPPED BOOST BENCHMARK)
+    set(oneValueArgs NAME)
+    set(multiValueArgs SOURCES)
+    cmake_parse_arguments(cppreact_test "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-target_link_libraries(CppReactTest CppReact gtest gtest_main)
+    add_executable (${cppreact_test_NAME} ${cppreact_test_SOURCES})
+    target_link_libraries(${cppreact_test_NAME} CppReact ${GTEST_BOTH_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+
+    # GTEST_ADD_TESTS does not seem to be able to find our tests ...
+    # pure guess : because of INSTANTIATE_TYPED_TEST_CASE_P usage ?
+    #GTEST_ADD_TESTS(${cppreact_test_NAME} "" AUTO)
+    add_test(NAME ${cppreact_test_NAME} COMMAND ${cppreact_test_NAME})
+endfunction(cppreact_test)
+
+cppreact_test(NAME EventStreamTest  SOURCES src/EventStreamTest.cpp)
+cppreact_test(NAME EventStreamTestQ SOURCES src/EventStreamTestQ.cpp)
+cppreact_test(NAME MoveTest         SOURCES src/MoveTest.cpp)
+cppreact_test(NAME ObserverTest     SOURCES src/ObserverTest.cpp)
+cppreact_test(NAME ObserverTestQ    SOURCES src/ObserverTestQ.cpp)
+cppreact_test(NAME OperationsTest   SOURCES src/OperationsTest.cpp)
+cppreact_test(NAME OperationsTestQ  SOURCES src/OperationsTestQ.cpp)
+cppreact_test(NAME SignalTest       SOURCES src/SignalTest.cpp)
+cppreact_test(NAME SignalTestQ      SOURCES src/SignalTestQ.cpp)
+cppreact_test(NAME TransactionTest  SOURCES src/TransactionTest.cpp)

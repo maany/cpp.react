@@ -12,8 +12,6 @@
 #include "react/detail/Defs.h"
 
 #include <algorithm>
-#include <array>
-#include <limits>
 #include <utility>
 #include <vector>
 
@@ -51,30 +49,30 @@ public:
 
     bool FetchNext()
     {
-        // Throw away previous values
-        nextData_.clear();
-
         // Find min level of nodes in queue data
-        minLevel_ = (std::numeric_limits<int>::max)();
-        for (const auto& e : queueData_)
-            if (minLevel_ > e.Level)
-                minLevel_ = e.Level;
+        auto min = std::min_element(
+            queueData_.begin(),
+            queueData_.end(),
+            [](const Entry& a, const Entry& b){ return a.Level < b.Level;});
 
         // Swap entries with min level to the end
         auto p = std::partition(
             queueData_.begin(),
             queueData_.end(),
-            LevelCompFunctor{ minLevel_ });
+            [&min](const Entry& e) { return e.Level != min->Level;});
+
+        // Throw away any previous values
+        nextData_.clear();
 
         // Reserve once to avoid multiple re-allocations
         nextData_.reserve(std::distance(p, queueData_.end()));
 
         // Move min level values to next data
         for (auto it = p; it != queueData_.end(); ++it)
-            nextData_.push_back(std::move(it->Value));
+            nextData_.emplace_back(std::move(it->Value));
 
         // Truncate moved entries
-        queueData_.resize(std::distance(queueData_.begin(), p));
+        queueData_.erase(p, queueData_.end());
 
         return !nextData_.empty();
     }
@@ -93,21 +91,10 @@ private:
         int     Level;
     };
 
-    struct LevelCompFunctor
-    {
-        LevelCompFunctor(int level) : Level( level ) {}
-
-        bool operator()(const Entry& e) const { return e.Level != Level; }
-
-        const int Level;
-    };
-
     NextDataT   nextData_;
     QueueDataT  queueData_;
 
     TLevelFunc  levelFunc_;
-
-    int         minLevel_ = (std::numeric_limits<int>::max)();
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -226,10 +213,10 @@ public:
         uint totalWeight = 0;
 
         // Determine current min level
-        minLevel_ = (std::numeric_limits<int>::max)();
-        for (const auto& buf : collectBuffer_)
-            if (minLevel_ > buf.MinLevel)
-                minLevel_ = buf.MinLevel;
+        auto min = std::min_element(
+            collectBuffer_.begin(),
+            collectBuffer_.end(),
+            [](const ThreadLocalBuffer& a, const ThreadLocalBuffer& b){ return a.MinLevel < b.MinLevel;});
 
         // For each thread local buffer...
         for (auto& buf : collectBuffer_)
@@ -240,17 +227,17 @@ public:
             auto p = std::partition(
                 v.begin(),
                 v.end(),
-                LevelCompFunctor{ minLevel_ });
+                [&min](const Entry& e) { return e.Level != min->MinLevel;});
 
             // Reserve once to avoid multiple re-allocations
-            nextData_.reserve(std::distance(p, v.end()));
+            nextData_.reserve(nextData_.size() + std::distance(p, v.end()));
 
             // Move min level values to global next data
             for (auto it = p; it != v.end(); ++it)
                 nextData_.emplace_back(std::move(it->Value), it->Weight);
 
             // Truncate remaining
-            v.resize(std::distance(v.begin(), p));
+            v.erase(p, v.end());
 
             // Calc new min level and weight for this buffer
             buf.MinLevel = (std::numeric_limits<int>::max)();
@@ -296,23 +283,12 @@ private:
         uint    Weight;
     };
 
-    struct LevelCompFunctor
-    {
-        LevelCompFunctor(int level) : Level{ level } {}
-
-        bool operator()(const Entry& e) const { return  e.Level != Level; }
-
-        const int Level;
-    };
-
     struct ThreadLocalBuffer
     {
         QueueDataT  Data;
         int         MinLevel = (std::numeric_limits<int>::max)();
         uint        Weight = 0;
     };
-
-    int         minLevel_ = (std::numeric_limits<int>::max)();
 
     NextDataT   nextData_;
     NextRangeT  nextRange_;

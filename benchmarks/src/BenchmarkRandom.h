@@ -53,14 +53,14 @@ public:
     Func3T    Function3;
     Func4T    Function4;
 
-    int     Width    = 1;
-    int     Height    = 1;
+    unsigned int     Width    = 1;
+    unsigned int     Height    = 1;
 
-    int     SelectSlowCount = 0;
-    int     SelectEdgeCount = 0;
+    unsigned int     SelectSlowCount = 0;
+    unsigned int     SelectEdgeCount = 0;
 
-    int     EdgeSeed;
-    int     SlowSeed;
+    unsigned int     EdgeSeed;
+    unsigned int     SlowSeed;
 
     void Generate()
     {
@@ -76,7 +76,7 @@ public:
         Func3T f3Fast = [this] (TValue a1, TValue a2, TValue a3)            { FastDelayFunc(); return Function3(a1,a2,a3); };
         Func4T f4Fast = [this] (TValue a1, TValue a2, TValue a3, TValue a4) { FastDelayFunc(); return Function4(a1,a2,a3,a4); };
 
-        int nodeCount = Width * Height;
+        auto nodeCount = Width * Height;
         
         std::mt19937 edgeGen(EdgeSeed);
         const auto edgeNodes = GetUniqueRandomNumbers(edgeGen, Width, nodeCount - 1, SelectEdgeCount);
@@ -90,17 +90,17 @@ public:
         auto edgeNodeIt = edgeNodes.begin();
         auto slowNodeIt = slowNodes.begin();
 
-        auto cur = 0;
+        unsigned cur = 0;
         HandleVect nodes(nodeCount);
 
-        for (int w=0; w<Width; w++)
+        for (unsigned w=0; w<Width; w++)
             nodes[cur++] = InputSignals[w];
 
-        for (int h=1; h<Height; h++)
+        for (unsigned h=1; h<Height; h++)
         {
             std::uniform_int_distribution<int> nodeDist(0, Width*h - 1);
 
-            for (int w=0; w<Width; w++)
+            for (unsigned w=0; w<Width; w++)
             {
                 Func1T f1 = f1Fast;
                 Func2T f2 = f2Fast;
@@ -165,7 +165,7 @@ public:
         }
 
         OutputSignals.clear();
-        for (int i=Width*(Height-1); i<nodeCount; i++)
+        for (unsigned i=Width*(Height-1); i<nodeCount; i++)
             OutputSignals.push_back(nodes[i]);
     }
 };

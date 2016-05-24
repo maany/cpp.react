@@ -30,6 +30,11 @@ struct Incrementer { T operator()(Token, T v) const { return v+1; } };
 template <typename T>
 struct Decrementer { T operator()(Token, T v) const { return v-1; } };
 
+template <typename I, typename F>
+void repeat(I i, F f) {
+    while (i--) f();
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /// EventStreamTest fixture
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -710,11 +715,10 @@ TYPED_TEST_P(OperationsTest, SyncedIterate4)
         vector<int>{},
         With(op1,op2),
         [] (EventRange<Token> range, vector<int>& v, int op1, int op2) -> void {
-            for (const auto& e : range)
-            {
+            repeat(range.size(),[&]{
                 v.push_back(op1);
                 v.push_back(op2);
-            }
+            });
         });
 
     auto out2 = Iterate(

@@ -20,14 +20,14 @@
 // Get unique random numbers from range.
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template <typename T, typename TGen>
-const std::vector<T> GetUniqueRandomNumbers(TGen gen, T from, T to, int count)
+const std::vector<T> GetUniqueRandomNumbers(TGen gen, T from, T to, T count)
 {
     std::vector<T>    data(1 + to - from);
     int c = from;
     for (auto& p : data)
         p = c++;
 
-    for (int i=0; i<count; i++)
+    for (T i=0; i<count; i++)
     {
         std::uniform_int_distribution<T> dist(i,(to - from));
         auto r = dist(gen);
