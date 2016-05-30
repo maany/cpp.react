@@ -15,32 +15,13 @@
 #include <type_traits>
 #include <utility>
 
+#include "react/Forward.h"
 #include "react/Observer.h"
 #include "react/TypeTraits.h"
 #include "react/common/Util.h"
 #include "react/detail/EventBase.h"
 
 /*****************************************/ REACT_BEGIN /*****************************************/
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/// Forward declarations
-///////////////////////////////////////////////////////////////////////////////////////////////////
-template <typename D, typename E>
-class Events;
-
-template <typename D, typename E>
-class EventSource;
-
-template <typename D, typename E, typename TOp>
-class TempEvents;
-
-enum class Token;
-
-template <typename D, typename S>
-class Signal;
-
-template <typename D, typename ... TValues>
-class SignalPack;
 
 using REACT_IMPL::WeightHint;
 
@@ -228,7 +209,7 @@ template
     typename FIn,
     typename ... TDepValues
 >
-auto Filter(const Events<D,E>& source, const SignalPack<D,TDepValues...>& depPack, FIn&& func)
+auto Filter(const Events<D,E>& source, const SignalPack<TDepValues...>& depPack, FIn&& func)
     -> Events<D,E>
 {
     using REACT_IMPL::SyncedEventFilterNode;
@@ -313,7 +294,7 @@ template
     typename ... TDepValues,
     typename TOut = typename std::result_of<FIn(TIn,TDepValues...)>::type
 >
-auto Transform(const Events<D,TIn>& source, const SignalPack<D,TDepValues...>& depPack, FIn&& func)
+auto Transform(const Events<D,TIn>& source, const SignalPack<TDepValues...>& depPack, FIn&& func)
     -> Events<D,TOut>
 {
     using REACT_IMPL::SyncedEventTransformNode;
@@ -379,7 +360,7 @@ template
     typename FIn,
     typename ... TDepValues
 >
-auto Process(const Events<D,TIn>& source, const SignalPack<D,TDepValues...>& depPack, FIn&& func)
+auto Process(const Events<D,TIn>& source, const SignalPack<TDepValues...>& depPack, FIn&& func)
     -> Events<D,TOut>
 {
     using REACT_IMPL::SyncedEventProcessingNode;
@@ -833,15 +814,5 @@ public:
 };
 
 /******************************************/ REACT_END /******************************************/
-
-/***************************************/ REACT_IMPL_BEGIN /**************************************/
-
-template <typename D, typename L, typename R>
-bool Equals(const Events<D,L>& lhs, const Events<D,R>& rhs)
-{
-    return lhs.Equals(rhs);
-}
-
-/****************************************/ REACT_IMPL_END /***************************************/
 
 #endif // REACT_EVENT_H_INCLUDED

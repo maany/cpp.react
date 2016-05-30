@@ -35,12 +35,12 @@ template
 class SignalNode : public ObservableNode<D>
 {
 public:
+    // TODO why ?
     SignalNode() = default;
 
     template <typename T>
     explicit SignalNode(T&& value) :
-        SignalNode::ObservableNode( ),
-        value_( std::forward<T>(value) )
+        value_{std::forward<T>(value)}
     {}
 
     const S& ValueRef() const
@@ -73,6 +73,7 @@ public:
     template <typename T>
     VarNode(T&& value) :
         VarNode::SignalNode( std::forward<T>(value) ),
+        // TODO assign newValue_ with value ? value is moved-from just above
         newValue_( value )
     {
         Engine::OnNodeCreate(*this);

@@ -19,47 +19,14 @@
 
 #include "react/detail/graph/ContinuationNodes.h"
 
+#include "react/Forward.h"
+
 #ifdef REACT_ENABLE_LOGGING
     #include "react/logging/EventLog.h"
     #include "react/logging/EventRecords.h"
 #endif //REACT_ENABLE_LOGGING
 
 /*****************************************/ REACT_BEGIN /*****************************************/
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/// Forward declarations
-///////////////////////////////////////////////////////////////////////////////////////////////////
-template <typename D, typename S>
-class Signal;
-
-template <typename D, typename S>
-class VarSignal;
-
-template <typename D, typename S, typename TOp>
-class TempSignal;
-
-template <typename D, typename E>
-class Events;
-
-template <typename D, typename E>
-class EventSource;
-
-template <typename D, typename E, typename TOp>
-class TempEvents;
-
-enum class Token;
-
-template <typename D>
-class Observer;
-
-template <typename D>
-class ScopedObserver;
-
-template <typename D>
-class Reactor;
-
-template <typename D, typename ... TValues>
-class SignalPack;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /// Common types & constants
@@ -285,7 +252,7 @@ template
     typename ... TDepValues
 >
 auto MakeContinuation(TransactionFlagsT flags, const Events<D,E>& trigger,
-                      const SignalPack<D,TDepValues...>& depPack, FIn&& func)
+                      const SignalPack<TDepValues...>& depPack, FIn&& func)
     -> Continuation<D,DOut>
 {
     static_assert(DOut::is_concurrent,
@@ -349,7 +316,7 @@ template
     typename ... TDepValues
 >
 auto MakeContinuation(const Events<D,E>& trigger,
-                      const SignalPack<D,TDepValues...>& depPack, FIn&& func)
+                      const SignalPack<TDepValues...>& depPack, FIn&& func)
     -> Continuation<D,DOut>
 {
     return MakeContinuation<D,DOut>(0, trigger, depPack, std::forward<FIn>(func));

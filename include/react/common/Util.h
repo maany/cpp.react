@@ -22,62 +22,18 @@
 /// http://stackoverflow.com/questions/687490/how-do-i-expand-a-tuple-into-variadic-template-functions-arguments
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<size_t N>
-struct Apply {
-    template<typename F, typename T, typename... A>
-    static inline auto apply(F && f, T && t, A &&... a)
-        -> decltype(Apply<N-1>::apply(std::forward<F>(f), std::forward<T>(t), std::get<N-1>(std::forward<T>(t)), std::forward<A>(a)...))
-    {
-        return Apply<N-1>::apply(std::forward<F>(f), std::forward<T>(t), std::get<N-1>(std::forward<T>(t)), std::forward<A>(a)...);
-    }
-};
-
-template<>
-struct Apply<0>
-{
-    template<typename F, typename T, typename... A>
-    static inline auto apply(F && f, T &&, A &&... a)
-        -> decltype(std::forward<F>(f)(std::forward<A>(a)...))
-    {
-        return std::forward<F>(f)(std::forward<A>(a)...);
-    }
-};
-
-template<typename F, typename T>
-inline auto apply(F && f, T && t)
-    -> decltype(Apply<std::tuple_size<typename std::decay<T>::type>::value>::apply(std::forward<F>(f), std::forward<T>(t)))
-{
-    return Apply<std::tuple_size<typename std::decay<T>::type>::value>
-        ::apply(std::forward<F>(f), std::forward<T>(t));
+template<typename F, typename Tuple, std::size_t ... I>
+auto apply_impl(F&& f, Tuple&& t, std::index_sequence<I...>) {
+    return std::forward<F>(f)(std::get<I>(std::forward<Tuple>(t))...);
 }
 
-template<size_t N>
-struct ApplyMemberFn {
-    template <typename O, typename F, typename T, typename... A>
-    static inline auto apply(O obj, F f, T && t, A &&... a)
-        -> decltype(ApplyMemberFn<N-1>::apply(obj, f, std::forward<T>(t), std::get<N-1>(std::forward<T>(t)), std::forward<A>(a)...))
-    {
-        return ApplyMemberFn<N-1>::apply(obj, f, std::forward<T>(t), std::get<N-1>(std::forward<T>(t)), std::forward<A>(a)...);
-    }
-};
+template <typename Tuple>
+using indices_t = std::make_index_sequence<std::tuple_size<std::decay_t<Tuple>>::value>;
 
-template<>
-struct ApplyMemberFn<0>
-{
-    template<typename O, typename F, typename T, typename... A>
-    static inline auto apply(O obj, F f, T &&, A &&... a)
-        -> decltype((obj->*f)(std::forward<A>(a)...))
-    {
-        return (obj->*f)(std::forward<A>(a)...);
-    }
-};
 
-template <typename O, typename F, typename T>
-inline auto applyMemberFn(O obj, F f, T&& t)
-    -> decltype(ApplyMemberFn<std::tuple_size<typename std::decay<T>::type>::value>::apply(obj, f, std::forward<T>(t)))
-{
-    return ApplyMemberFn<std::tuple_size<typename std::decay<T>::type>::value>
-        ::apply(obj, f, std::forward<T>(t));
+template<typename F, typename Tuple>
+auto apply(F&& f, Tuple&& t) {
+    return apply_impl(std::forward<F>(f), std::forward<Tuple>(t), indices_t<Tuple>());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

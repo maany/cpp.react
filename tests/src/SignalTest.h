@@ -63,6 +63,77 @@ TYPED_TEST_P(SignalTest, MakeVars)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+/// Signals0 tests
+///////////////////////////////////////////////////////////////////////////////////////////////////
+TYPED_TEST_P(SignalTest, Signals00)
+{
+    using D = typename Signals00::MyDomain;
+
+    auto v1 = MakeVar<D>(1);
+    auto v2 = MakeVar<D>(2);
+
+    auto s1 = MakeSignal(With(v1,v2), [] (int a, int b) {
+        return a + b;
+    });
+
+    ASSERT_EQ(s1(),3);
+}
+
+TYPED_TEST_P(SignalTest, Signals01)
+{
+    using D = typename Signals01::MyDomain;
+
+    auto v1 = MakeVar<D>(1);
+    auto v2 = MakeVar<D>(2);
+
+    auto s1 = MakeSignal(With(v1,v2), [] (int a, int b) {
+        return a + b;
+    });
+
+    auto v3 = MakeVar<D>(3);
+
+    auto s2 = MakeSignal(With(s1,v3), [] (int a, int b) {
+        return a + b;
+    });
+
+    ASSERT_EQ(s2(),6);
+}
+
+TYPED_TEST_P(SignalTest, Signals02)
+{
+    using D = typename Signals02::MyDomain;
+
+    auto v1 = MakeVar<D>(1);
+    auto v2 = MakeVar<D>(2);
+
+    auto s1 = MakeSignal(With(v1,v2), [] (int a, int b) {
+        return a + b;
+    });
+
+    auto v3 = MakeVar<D>(3);
+
+    ASSERT_EQ((s1 + v3)(),6);
+}
+
+TYPED_TEST_P(SignalTest, Signals03)
+{
+    using D = typename Signals03::MyDomain;
+
+    auto v1 = MakeVar<D>(1);
+    auto v2 = MakeVar<D>(2);
+
+    auto s1 = MakeSignal(With(v1,v2), [] (int a, int b) {
+        return a + b;
+    });
+
+    auto v3 = MakeVar<D>(3);
+
+    auto s2 = s1 + v3;
+
+    ASSERT_EQ(s2(),6);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 /// Signals1 test
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 TYPED_TEST_P(SignalTest, Signals1)
@@ -275,6 +346,79 @@ TYPED_TEST_P(SignalTest, Signals4)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+/// Plus tests
+///////////////////////////////////////////////////////////////////////////////////////////////////
+TYPED_TEST_P(SignalTest, Plus100)
+{
+    using D = typename Plus100::MyDomain;
+
+    auto a = MakeVar<D>(1);
+
+    auto b = a + 100;
+    ASSERT_EQ(b(),101);
+
+    a <<= 10;
+    ASSERT_EQ(b(),110);
+}
+
+TYPED_TEST_P(SignalTest, UnaryMinus)
+{
+    using D = typename UnaryMinus::MyDomain;
+
+    auto a = MakeVar<D>(1);
+
+    auto b = -a;
+    ASSERT_EQ(b(),-1);
+
+    a <<= 10;
+    ASSERT_EQ(b(),-10);
+}
+
+TYPED_TEST_P(SignalTest, UnaryMinusThenPlus100)
+{
+    using D = typename UnaryMinusThenPlus100::MyDomain;
+
+    auto a = MakeVar<D>(1);
+
+    auto b = -a;
+    ASSERT_EQ(b(),-1);
+
+    auto c = b + 100;
+    ASSERT_EQ(b(),-1);
+    ASSERT_EQ(c(),99);
+
+    a <<= 10;
+    ASSERT_EQ(b(),-10);
+    ASSERT_EQ(c(),90);
+}
+
+TYPED_TEST_P(SignalTest, Plus10Plus100)
+{
+    using D = typename Plus10Plus100::MyDomain;
+
+    auto a = MakeVar<D>(1);
+
+    auto b = a + 10 + 100;
+    ASSERT_EQ(111, b());
+
+    a <<= 10;
+    ASSERT_EQ(120, b());
+}
+
+TYPED_TEST_P(SignalTest, UnaryMinusPlus100)
+{
+    using D = typename UnaryMinusPlus100::MyDomain;
+
+    auto a = MakeVar<D>(1);
+
+    auto b = -a + 100;
+    ASSERT_EQ(b(),99);
+
+    a <<= 10;
+    ASSERT_EQ(b(),90);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 /// FunctionBind1 test
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 TYPED_TEST_P(SignalTest, FunctionBind1)
@@ -459,7 +603,7 @@ TYPED_TEST_P(SignalTest, Flatten3)
 
     auto result = flattened + a0;
 
-    ASSERT_EQ(result(), 10 + 30);
+    ASSERT_EQ(10 + 30, result());
     ASSERT_EQ(observeCount, 0);
 
     DoTransaction<D>([&] {
@@ -536,7 +680,7 @@ TYPED_TEST_P(SignalTest, Member1)
     auto outer = MakeVar<D>(10);
     auto inner = MakeVar<D>(outer);
 
-    auto flattened = inner.Flatten();
+    auto flattened = Flatten(inner);
 
     Observe(flattened, [] (int v) {
         ASSERT_EQ(v, 30);
@@ -653,7 +797,9 @@ REGISTER_TYPED_TEST_CASE_P
 (
     SignalTest,
     MakeVars,
+    Signals00, Signals01, Signals02, Signals03,
     Signals1, Signals2, Signals3, Signals4,
+    Plus100, UnaryMinusThenPlus100, Plus10Plus100, UnaryMinus,UnaryMinusPlus100,
     FunctionBind1, FunctionBind2,
     Flatten1, Flatten2, Flatten3, Flatten4,
     Member1,

@@ -18,20 +18,9 @@
 #include "react/detail/IReactiveNode.h"
 #include "react/detail/ObserverBase.h"
 #include "react/detail/graph/ObserverNodes.h"
+#include "react/Forward.h"
 
 /*****************************************/ REACT_BEGIN /*****************************************/
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/// Forward declarations
-///////////////////////////////////////////////////////////////////////////////////////////////////
-template <typename D, typename S>
-class Signal;
-
-template <typename D, typename ... TValues>
-class SignalPack;
-
-template <typename D, typename E>
-class Events;
 
 using REACT_IMPL::ObserverAction;
 using REACT_IMPL::WeightHint;
@@ -264,7 +253,7 @@ template
     typename ... TDepValues
 >
 auto Observe(const Events<D,E>& subject,
-             const SignalPack<D,TDepValues...>& depPack, FIn&& func)
+             const SignalPack<TDepValues...>& depPack, FIn&& func)
     -> Observer<D>
 {
     using REACT_IMPL::IObserver;
@@ -279,19 +268,19 @@ auto Observe(const Events<D,E>& subject,
 
     using WrapperT =
         typename std::conditional<
-            IsCallableWith<F, ObserverAction, EventRange<E>, TDepValues ...>::value,
+            IsCallableWith<F, ObserverAction, EventRange<E>, ValueT<TDepValues> ...>::value,
             F,
             typename std::conditional<
-                IsCallableWith<F, ObserverAction, E, TDepValues ...>::value,
-                AddObserverRangeWrapper<E, F, TDepValues ...>,
+                IsCallableWith<F, ObserverAction, E, ValueT<TDepValues> ...>::value,
+                AddObserverRangeWrapper<E, F, ValueT<TDepValues> ...>,
                 typename std::conditional<
-                    IsCallableWith<F, void, EventRange<E>, TDepValues ...>::value,
+                    IsCallableWith<F, void, EventRange<E>, ValueT<TDepValues> ...>::value,
                     AddDefaultReturnValueWrapper<F, ObserverAction ,ObserverAction::next>,
                     typename std::conditional<
-                        IsCallableWith<F, void, E, TDepValues ...>::value,
+                        IsCallableWith<F, void, E, ValueT<TDepValues> ...>::value,
                         AddObserverRangeWrapper<E,
                             AddDefaultReturnValueWrapper<F,ObserverAction,ObserverAction::next>,
-                                TDepValues...>,
+                                ValueT<TDepValues>...>,
                             void
                         >::type
                 >::type
@@ -302,7 +291,7 @@ auto Observe(const Events<D,E>& subject,
         ! std::is_same<WrapperT,void>::value,
         "Observe: Passed function does not match any of the supported signatures.");
 
-    using NodeT = SyncedObserverNode<D,E,WrapperT,TDepValues ...>;
+    using NodeT = SyncedObserverNode<D,E,WrapperT,ValueT<TDepValues> ...>;
 
     struct NodeBuilder_
     {
@@ -311,7 +300,7 @@ auto Observe(const Events<D,E>& subject,
             MyFunc( std::forward<FIn>(func) )
         {}
 
-        auto operator()(const Signal<D,TDepValues>& ... deps)
+        auto operator()(const TDepValues& ... deps)
             -> ObserverNode<D>*
         {
             return new NodeT(

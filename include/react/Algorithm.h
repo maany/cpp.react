@@ -20,26 +20,6 @@
 /*****************************************/ REACT_BEGIN /*****************************************/
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/// Forward declarations
-///////////////////////////////////////////////////////////////////////////////////////////////////
-template <typename D, typename S>
-class Signal;
-
-template <typename D, typename S>
-class VarSignal;
-
-template <typename D, typename E>
-class Events;
-
-template <typename D, typename E>
-class EventSource;
-
-enum class Token;
-
-template <typename D, typename ... TValues>
-class SignalPack;
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 /// Hold - Hold the most recent event in a signal
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template
@@ -63,11 +43,12 @@ auto Hold(const Events<D,T>& events, V&& init)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template
 <
-    typename D,
-    typename S
+    typename SignalT,
+    typename D = typename SignalT::DomainT,
+    typename S = typename SignalT::ValueT
 >
-auto Monitor(const Signal<D,S>& target)
-    -> Events<D,S>
+auto Monitor(const SignalT& target)
+    -> Events<D, S>
 {
     using REACT_IMPL::MonitorNode;
 
@@ -140,7 +121,7 @@ template
     typename S = typename std::decay<V>::type
 >
 auto Iterate(const Events<D,E>& events, V&& init,
-             const SignalPack<D,TDepValues...>& depPack, FIn&& func)
+             const SignalPack<TDepValues...>& depPack, FIn&& func)
     -> Signal<D,S>
 {
     using REACT_IMPL::SyncedIterateNode;
