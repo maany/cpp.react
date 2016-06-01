@@ -199,7 +199,7 @@ template <typename ... TDeps>
 class ReactiveOpBase
 {
 public:
-    using DepHolderT = std::tuple<TDeps...>;
+    using DepHolderT = std::tuple<std::decay_t<TDeps>...>;
 
     template <typename ... TDepsIn>
     ReactiveOpBase(DontMove, TDepsIn&& ... deps) :

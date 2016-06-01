@@ -30,7 +30,6 @@ public:
 
     struct Stats
     {
-        int copyCount = 0;
         int moveCount = 0;
     };
 
@@ -39,33 +38,19 @@ public:
         int v = 0;
         Stats* stats = nullptr;
 
-        CopyCounter() = default;
-
         CopyCounter(int x, Stats* s) :
             v( x ),
             stats( s )
         {}
 
-        CopyCounter(const CopyCounter& other) :
-            v( other.v ),
-            stats( other.stats )
-        {
-            stats->copyCount++;
-        }
+        CopyCounter(const CopyCounter& other) = delete;
+        CopyCounter& operator=(const CopyCounter& other) = delete;
 
         CopyCounter(CopyCounter&& other) :
             v( other.v ),
             stats( other.stats )
         {
             stats->moveCount++;
-        }
-
-        CopyCounter& operator=(const CopyCounter& other)
-        {
-            v = other.v;
-            stats = other.stats;
-            stats->copyCount++;
-            return *this;
         }
 
         CopyCounter& operator=(CopyCounter&& other)
@@ -107,21 +92,17 @@ TYPED_TEST_P(MoveTest, Copy1)
     auto d = MakeVar<D>(CopyCounter{1000,&stats1});
 
     // 4x move to value_
-    // 4x copy to newValue_ (can't be unitialized for references)
-    ASSERT_EQ(stats1.copyCount, 4);
-    ASSERT_EQ(stats1.moveCount, 4);
+    ASSERT_EQ(4, stats1.moveCount);
 
     auto x = a + b + c + d;
 
-    ASSERT_EQ(stats1.copyCount, 4);
-    ASSERT_EQ(stats1.moveCount, 7);
-    ASSERT_EQ(x().v, 1111);
+    ASSERT_EQ(7, stats1.moveCount);
+    ASSERT_EQ(1111, x().v);
 
     a <<= CopyCounter{2,&stats1};
 
-    ASSERT_EQ(stats1.copyCount, 4);
-    ASSERT_EQ(stats1.moveCount, 10);
-    ASSERT_EQ(x().v, 1112);
+    ASSERT_EQ(10, stats1.moveCount);
+    ASSERT_EQ(1112, x().v);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

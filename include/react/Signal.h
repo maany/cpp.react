@@ -70,13 +70,14 @@ template <typename... TSignals> struct DomainTrait<SignalPack<TSignals...>> {
 template <typename S, typename F, typename... Args>
 using functor_t = FunctionOp<S, F, Args...>;
 
-template <typename D, typename S, typename F, typename... Args>
-using signal_node_t = SignalOpNode<D, S, functor_t<S, F, std::decay_t<Args>...>>;
+template <typename D, typename S, typename TOp>
+using signal_op_node_t = SignalOpNode<D, S, TOp>;
 
 template <typename D, typename S, typename F, typename... Args>
-auto make_node(F &&f, Args &&... args) {
-  return std::make_shared<signal_node_t<D, S, F, Args...>>(
-      std::forward<F>(f), std::forward<Args>(args)...);
+auto make_op_node(F &&f, Args &&... args) {
+  using TOp = functor_t<S, F, std::decay_t<Args>...>;
+  return std::make_shared<signal_op_node_t<D, S, TOp>>(
+      TOp{std::forward<F>(f), std::forward<Args>(args)...});
 }
 
 template <typename F, typename... TSignals>
@@ -84,7 +85,7 @@ auto make_op_signal(F &&f, TSignals &&... args) {
   using D = domain_t<TSignals...>;
   using S = std::result_of_t<F(value_t<TSignals>...)>;
 
-  return Signal<D, S>{make_node<D, S>(
+  return Signal<D, S>{make_op_node<D, S>(
       std::forward<F>(f), GetNodePtr(std::forward<TSignals>(args))...)};
 }
 
@@ -155,14 +156,14 @@ template <typename D, typename V, typename FIn, typename F = std::decay_t<FIn>,
           typename S = std::result_of_t<F(V)>>
 auto MakeSignal(const Signal<D, V> &arg, FIn &&func) {
   return Signal<D, S>(
-      impl::make_node<D, S>(std::forward<FIn>(func), GetNodePtr(arg)));
+      impl::make_op_node<D, S>(std::forward<FIn>(func), GetNodePtr(arg)));
 }
 
 // Multiple args
 template <typename D, typename S, typename F, typename Tuple, std::size_t... I>
 auto MakeNode(F &&f, const Tuple &tuple, std::index_sequence<I...>) {
-  return impl::make_node<D, S>(std::forward<F>(f),
-                               GetNodePtr(std::get<I>(tuple))...);
+  return impl::make_op_node<D, S>(std::forward<F>(f),
+                                  GetNodePtr(std::get<I>(tuple))...);
 }
 
 // Multiple args
@@ -177,7 +178,7 @@ auto MakeSignal(const SignalPack<TSignals...> &argPack, FIn &&func) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/// Utils
+/// ValueTypeTrait
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename S> struct ValueTypeTrait { using type = S; };
@@ -198,7 +199,7 @@ template <typename D, typename S> struct Signal {
   using DomainT = D;
 
   Signal() : ptr_{} {}
-  explicit Signal(NodePtrT p) : ptr_{p} {}
+  explicit Signal(NodePtrT p) : ptr_{std::move(p)} {}
 
   //  Signal(const Signal &) = delete;
   //  Signal& operator =(const Signal &) = delete;
@@ -251,7 +252,7 @@ auto operator+(const Signal<D, LV> &l, RV &&r) {
 
 template <typename D, typename LV, typename RV,
           class = impl::if_not_signal_t<LV>>
-auto operator+(LV &&l, const Signal<D, RV> &&r) {
+auto operator+(LV &&l, const Signal<D, RV> &r) {
   return impl::make_op_signal(
       std::bind(std::plus<>(), std::forward<LV>(l), impl::_1), r);
 }
@@ -270,7 +271,7 @@ auto operator-(const Signal<D, LV> &l, RV &&r) {
 
 template <typename D, typename LV, typename RV,
           class = impl::if_not_signal_t<LV>>
-auto operator-(LV &&l, const Signal<D, RV> &&r) {
+auto operator-(LV &&l, const Signal<D, RV> &r) {
   return impl::make_op_signal(
       std::bind(std::minus<>(), std::forward<LV>(l), impl::_1), r);
 }
@@ -289,7 +290,7 @@ auto operator*(const Signal<D, LV> &l, RV &&r) {
 
 template <typename D, typename LV, typename RV,
           class = impl::if_not_signal_t<LV>>
-auto operator*(LV &&l, const Signal<D, RV> &&r) {
+auto operator*(LV &&l, const Signal<D, RV> &r) {
   return impl::make_op_signal(
       std::bind(std::multiplies<>(), std::forward<LV>(l), impl::_1), r);
 }
@@ -308,14 +309,14 @@ auto operator/(const Signal<D, LV> &l, RV &&r) {
 
 template <typename D, typename LV, typename RV,
           class = impl::if_not_signal_t<LV>>
-auto operator/(LV &&l, const Signal<D, RV> &&r) {
+auto operator/(LV &&l, const Signal<D, RV> &r) {
   return impl::make_op_signal(
       std::bind(std::divides<>(), std::forward<LV>(l), impl::_1), r);
 }
 
 template <typename D, typename S>
 Signal<D, S> operator-(const Signal<D, S> &in) {
-  return in * S{-1};
+  return S{-1} * in;
 }
 
 template <typename D, typename S>
