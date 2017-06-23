@@ -10,7 +10,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -Wpedantic")
 
-include_directories ("${PROJECT_SOURCE_DIR}/include")
+include_directories (SYSTEM "${PROJECT_SOURCE_DIR}/include")
 
 ### CppReact
 file(GLOB_RECURSE CPPREACT_HEADERS include/*.h)
